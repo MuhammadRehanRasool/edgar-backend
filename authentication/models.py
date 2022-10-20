@@ -10,7 +10,7 @@ class CustomUsers(AbstractUser):
     email = models.EmailField(
         max_length=256, unique=True)
     password = models.CharField(max_length=2048)
-    signedUpAt = models.DateTimeField(auto_now_add=True)
+    signedUpAt = models.DateTimeField(verbose_name="joining date", auto_now_add=True)
 
     class Meta:
         verbose_name_plural = "Users"
