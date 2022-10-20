@@ -1,22 +1,6 @@
-import email
 from django.db import models
+
 # Create your models here.
-
-
-class Users(models.Model):
-    name = models.CharField(max_length=256)
-    username = models.CharField(
-        max_length=64, unique=True)
-    email = models.EmailField(
-        max_length=256, unique=True)
-    password = models.CharField(max_length=2048)
-    
-    class Meta:
-        verbose_name_plural = "Users"
-
-    def __str__(self):
-        return self.username
-
 
 SUBSCRIPTION_TYPES = [
     ('DY', 'Day'),
@@ -32,8 +16,8 @@ class SubscriptionTypes(models.Model):
         max_length=2,
         choices=SUBSCRIPTION_TYPES
     )
-    price = models.IntegerField()
-    
+    price = models.IntegerField(default=0)
+
     class Meta:
         verbose_name_plural = "Subscription Types"
 
@@ -43,12 +27,27 @@ class SubscriptionTypes(models.Model):
 
 class Subject(models.Model):
     title = models.CharField(max_length=256)
-    subscription_types = models.ManyToManyField(SubscriptionTypes)
-    
+
     class Meta:
         verbose_name_plural = "Subjects"
 
     def __str__(self):
         return self.title
+
+
+class Topic(models.Model):
+    title = models.CharField(max_length=256)
+    subject = models.ForeignKey(
+        'Subject',
+        on_delete=models.CASCADE,
+    )
+    subscription_types = models.ManyToManyField(SubscriptionTypes)
+
+    class Meta:
+        verbose_name_plural = "Topics"
+
+    def __str__(self):
+        return self.title + " ("+str(self.subject)+")"
+
 
 # https://www.airplane.dev/blog/django-admin-crash-course-how-to-build-a-basic-admin-panel
