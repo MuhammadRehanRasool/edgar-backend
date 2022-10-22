@@ -6,7 +6,6 @@ from . import models
 
 class TopicSubscriptionAdmin(admin.TabularInline):
     model = models.TopicSubscription
-    extra = 0
 
 
 class TopicAdmin(admin.ModelAdmin):
