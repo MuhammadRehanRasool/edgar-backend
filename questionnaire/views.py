@@ -46,8 +46,10 @@ def getPriceIdFromStripe(original_amount, product_id):
 @permission_classes([])
 def testing(request):
     if request.method == "GET":
-        price_id = getPriceIdFromStripe(70, "prod_Mf890XCCTDw51d")
-        print(price_id)
+        # price_id = getPriceIdFromStripe(70, "prod_Mf890XCCTDw51d")
+        # print(price_id)
+        query = models.Topic.objects.all()
+        print(query.values_list())
         return JsonResponse({'message': ""}, status=status.HTTP_200_OK)
     if request.method == "POST":
         coming_data = JSONParser().parse(request)
@@ -74,7 +76,7 @@ def testing(request):
                 # '?success=true&session_id={CHECKOUT_SESSION_ID}',
                 # cancel_url='localhost:3000/' + '?canceled=true',
                 success_url='https://github.com/',
-                cancel_url='https://github.com10lk236o566t,
+                cancel_url='https://github.com10lk236o566t',
             )
         except Exception as e:
             return JsonResponse({'Error':  str(e)}, status=500)

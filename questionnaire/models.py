@@ -57,8 +57,38 @@ class TopicSubscription(models.Model):
     price = models.IntegerField(default=0)
     timestamp = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name_plural = "Topic Subscription"
+
     def __str__(self):
         return str(self.topic) + " ("+str(self.subscription_types)+" - "+str(self.price)+"$)"
+
+class Levels(models.Model):
+    title = models.CharField(max_length=1028)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Levels"
+
+    def __str__(self):
+        return str(self.title)
+
+class Questions(models.Model):
+    topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
+    level = models.ForeignKey(Levels, on_delete=models.CASCADE)
+    question = models.CharField(max_length=1028)
+    optionA = models.CharField(max_length=1028)
+    optionB = models.CharField(max_length=1028)
+    optionC = models.CharField(max_length=1028)
+    optionD = models.CharField(max_length=1028)
+    answer = models.CharField(max_length=1028)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Questions"
+
+    def __str__(self):
+        return str(self.topic) + " ("+str(self.question) + ")"
 
 
 # https://www.airplane.dev/blog/django-admin-crash-course-how-to-build-a-basic-admin-panel
