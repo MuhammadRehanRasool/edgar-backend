@@ -1,5 +1,7 @@
+from statistics import mode
 from rest_framework import status
-from . import models
+from . import models, serializers
+from authentication.models import CustomUsers
 from django.http.response import JsonResponse
 from rest_framework import status
 from rest_framework.parsers import JSONParser
@@ -48,8 +50,8 @@ def testing(request):
     if request.method == "GET":
         # price_id = getPriceIdFromStripe(70, "prod_Mf890XCCTDw51d")
         # print(price_id)
-        query = models.Topic.objects.all()
-        print(query.values_list())
+        query = models.TopicSubscription.objects
+        print(query.values())
         return JsonResponse({'message': ""}, status=status.HTTP_200_OK)
     if request.method == "POST":
         coming_data = JSONParser().parse(request)
@@ -83,3 +85,28 @@ def testing(request):
         print(checkout_session.url)
         # return redirect(checkout_session.url)
         return JsonResponse({'message': checkout_session.url}, status=status.HTTP_200_OK)
+
+# Test
+
+
+@api_view(['GET'])
+@permission_classes([])
+def topics(request):
+    if request.method == "GET":
+        query = models.Topic.objects.all()
+        serializer = serializers.TopicSerializer(query, many=True)
+        payload = []
+        try:
+            for item in serializer.data:
+                query_b = models.TopicSubscription.objects.filter(
+                    topic=item["id"])
+                serializer_b = serializers.TopicSubscriptionSerializer(query_b, many=True)
+                payload.append({
+                    **item,
+                    "subscriptions": serializer_b.data})
+        except Exception as e:
+            print(e)
+            return JsonResponse({'message': "Error!"}, status=status.HTTP_200_OK)
+        return JsonResponse(payload, status=status.HTTP_200_OK, safe=False)
+
+# Topics

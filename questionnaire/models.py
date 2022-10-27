@@ -1,18 +1,12 @@
 from django.db import models
+from traitlets import default
+from authentication.models import CustomUsers
 
 # Create your models here.
 
-# SUBSCRIPTION_TYPES = [
-#     ('DY', 'Day'),
-#     ('WY', 'Week'),
-#     ('MY', 'Month'),
-#     ('6Y', '6 Months'),
-#     ('YY', 'Year'),
-# ]
-
-
 class SubscriptionTypes(models.Model):
     title = models.CharField(max_length=20)
+    expiryHours = models.IntegerField(default=24)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -63,6 +57,22 @@ class TopicSubscription(models.Model):
     def __str__(self):
         return str(self.topic) + " ("+str(self.subscription_types)+" - "+str(self.price)+"$)"
 
+
+class StudentSubscription(models.Model):
+    user = models.ForeignKey(CustomUsers, on_delete=models.CASCADE)
+    type = models.ForeignKey(
+        TopicSubscription, on_delete=models.CASCADE)
+    isActive = models.BooleanField(default=True)
+    isActive = models.BooleanField(default=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Student Subscription"
+
+    def __str__(self):
+        return str(self.topic) + " ("+str(self.user)+")"
+
+
 class Levels(models.Model):
     title = models.CharField(max_length=1028)
     timestamp = models.DateTimeField(auto_now_add=True)
@@ -72,6 +82,7 @@ class Levels(models.Model):
 
     def __str__(self):
         return str(self.title)
+
 
 class Questions(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
