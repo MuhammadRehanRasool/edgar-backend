@@ -90,7 +90,6 @@ def testing(request):
 
 
 @api_view(['GET'])
-@permission_classes([])
 def topics(request):
     if request.method == "GET":
         query = models.Topic.objects.all()
@@ -100,7 +99,8 @@ def topics(request):
             for item in serializer.data:
                 query_b = models.TopicSubscription.objects.filter(
                     topic=item["id"])
-                serializer_b = serializers.TopicSubscriptionSerializer(query_b, many=True)
+                serializer_b = serializers.TopicSubscriptionSerializer(
+                    query_b, many=True)
                 payload.append({
                     **item,
                     "subscriptions": serializer_b.data})
@@ -110,3 +110,14 @@ def topics(request):
         return JsonResponse(payload, status=status.HTTP_200_OK, safe=False)
 
 # Topics
+
+
+@api_view(['GET'])
+def plans(request):
+    if request.method == "GET":
+        query = models.SubscriptionTypes.objects.all()
+        serializer = serializers.NameOfSubscriptionTypesSerializer(
+            query, many=True)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
+
+# Plans
