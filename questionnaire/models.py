@@ -4,6 +4,7 @@ from authentication.models import CustomUsers
 
 # Create your models here.
 
+
 class SubscriptionTypes(models.Model):
     title = models.CharField(max_length=20)
     expiryHours = models.IntegerField(default=24)
@@ -44,6 +45,19 @@ class Topic(models.Model):
         return self.title + " ("+str(self.subject)+")"
 
 
+class Levels(models.Model):
+    title = models.CharField(max_length=1028)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name_plural = "Levels"
+
+    def __str__(self):
+        return str(self.title)
+
+# Generic
+
+
 class TopicSubscription(models.Model):
     topic = models.ForeignKey(Topic, on_delete=models.CASCADE)
     subscription_types = models.ForeignKey(
@@ -63,25 +77,14 @@ class StudentSubscription(models.Model):
     type = models.ForeignKey(
         TopicSubscription, on_delete=models.CASCADE)
     isActive = models.BooleanField(default=True)
-    isActive = models.BooleanField(default=True)
+    isExpired = models.BooleanField(default=False)
     timestamp = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name_plural = "Student Subscription"
 
     def __str__(self):
-        return str(self.topic) + " ("+str(self.user)+")"
-
-
-class Levels(models.Model):
-    title = models.CharField(max_length=1028)
-    timestamp = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name_plural = "Levels"
-
-    def __str__(self):
-        return str(self.title)
+        return str(self.type) + " ("+str(self.user)+")"
 
 
 class Questions(models.Model):

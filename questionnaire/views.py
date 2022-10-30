@@ -12,7 +12,7 @@ from django.shortcuts import redirect
 import stripe
 import json
 
-stripe.api_key = 'sk_test_51LvflpEzOnSWJxP5wAUZaz0GwCcFO4aawZd9G91v8wUSiDV2NYC2y7FiZpkMnsWLCxFJcPqpGz7vwfU9Z4OrC4R0009X88pIFs'
+stripe.api_key = 'sk_test_51LyNIZJwTuApoB7Ms8joJ1fORtVdu9sohKVSy1KoZJALIWKCsv7sST3AVYfWpfoEis9gvsPK6JRlZLyFFQhjmKhG00VJdbjvll'
 
 
 def getProductIdFromStripe(product_name):
@@ -44,27 +44,18 @@ def getPriceIdFromStripe(original_amount, product_id):
     return price_id
 
 
-@api_view(['GET', 'POST'])
-@permission_classes([])
-def testing(request):
-    if request.method == "GET":
-        # price_id = getPriceIdFromStripe(70, "prod_Mf890XCCTDw51d")
-        # print(price_id)
-        query = models.TopicSubscription.objects
-        print(query.values())
-        return JsonResponse({'message': ""}, status=status.HTTP_200_OK)
+@api_view(['POST'])
+def makePayment(request):
     if request.method == "POST":
         coming_data = JSONParser().parse(request)
         amount = int(coming_data['amount'])*100
         product_name = coming_data['product']
+        success_url = coming_data['success_url']
+        cancel_url = coming_data['cancel_url']
+        redirect = coming_data['redirect']
         try:
             product_id = getProductIdFromStripe(product_name)
             pr_price = getPriceIdFromStripe(amount, product_id)
-            # print("Amount", amount)
-            # print("product_name", product_name)
-            # print("product_id", product_id)
-            # print("pr_price", pr_price)
-            # print("\n\n\khatam tata")
             checkout_session = stripe.checkout.Session.create(
                 line_items=[
                     {
@@ -74,22 +65,17 @@ def testing(request):
 
                 ],
                 mode='payment',
-                # success_url='localhost:3000/' + \
-                # '?success=true&session_id={CHECKOUT_SESSION_ID}',
-                # cancel_url='localhost:3000/' + '?canceled=true',
-                success_url='https://github.com/',
-                cancel_url='https://github.com10lk236o566t',
+                success_url=success_url+"&redirect="+redirect,
+                cancel_url=cancel_url
             )
         except Exception as e:
-            return JsonResponse({'Error':  str(e)}, status=500)
-        print(checkout_session.url)
-        # return redirect(checkout_session.url)
-        return JsonResponse({'message': checkout_session.url}, status=status.HTTP_200_OK)
+            return JsonResponse({'type': "error", 'message':  str(e)})
+        return JsonResponse({'type': "success", 'message': checkout_session.url}, status=status.HTTP_200_OK)
 
 # Test
 
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 def topics(request):
     if request.method == "GET":
         query = models.Topic.objects.all()
@@ -108,6 +94,18 @@ def topics(request):
             print(e)
             return JsonResponse({'message': "Error!"}, status=status.HTTP_200_OK)
         return JsonResponse(payload, status=status.HTTP_200_OK, safe=False)
+    if request.method == "POST":
+        query = models.Topic.objects.filter(pk=request.data["id"]).first()
+        serializer = serializers.TopicSerializer(query)
+        query_b = models.TopicSubscription.objects.filter(
+            topic=request.data["id"])
+        serializer_b = serializers.TopicSubscriptionSerializer(
+            query_b, many=True)
+        return JsonResponse({
+            **serializer.data,
+            "questionsCount": 170,
+            "subscriptions": serializer_b.data
+        }, status=status.HTTP_200_OK)
 
 # Topics
 
@@ -121,3 +119,22 @@ def plans(request):
         return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
 
 # Plans
+
+
+@api_view(['GET'])
+@permission_classes([])
+def subscriptions(request):
+    if request.method == "GET":
+        user = request.GET.get('user', None)
+        type = request.GET.get('type', None)
+        redirect = request.GET.get('redirect', None)
+        print(redirect)
+        if user is not None and type is not None:
+            query = ""
+            # query = models.StudentSubscription.objects.create(
+            #     user=CustomUsers.objects.get(pk=user), type=models.TopicSubscription.objects.get(pk=type))
+            if query:
+                return JsonResponse({'type': "success", 'message':  "Done!"}, status=500)
+        return JsonResponse({'type': "error", 'message':  "Invalid!"}, status=500)
+
+# Subscriptions
