@@ -84,7 +84,7 @@ def topics(request):
     if request.method == "GET":
         user = request.GET.get('user', None)
         if user is None:
-            return JsonResponse([], status=status.HTTP_200_OK)
+            return JsonResponse([], status=status.HTTP_200_OK, safe=False)
         all_ids = models.StudentSubscription.objects.filter(user=int(user))
         fetch_ids = serializers.StudentSubscriptionSerializer(
             all_ids, many=True)
@@ -149,5 +149,16 @@ def subscriptions(request):
         rd = request.GET.get('redirect', None)
         addSubscriptionToDatabase(user, type)
         return redirect(str(rd))
+
+
+@api_view(['GET'])
+@permission_classes([])
+def mysubscriptions(request):
+    if request.method == "GET":
+        user = request.GET.get('user', None)
+        all_ids = models.StudentSubscription.objects.filter(user=int(user))
+        fetch_ids = serializers.StudentSubscriptionSerializer(
+            all_ids, many=True)
+        return JsonResponse(fetch_ids.data, status=status.HTTP_200_OK, safe=False)
 
 # Subscriptions

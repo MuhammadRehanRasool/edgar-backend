@@ -32,6 +32,7 @@ class TopicSerializer(serializers.ModelSerializer):
 
 class TopicSubscriptionSerializer(serializers.ModelSerializer):
     subscription_types = NameOfSubscriptionTypesSerializer()
+    topic = TopicSerializer()
 
     class Meta:
         model = models.TopicSubscription
